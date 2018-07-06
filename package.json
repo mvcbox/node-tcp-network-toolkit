@@ -1,0 +1,27 @@
+{
+  "name": "tcp-network-toolkit",
+  "version": "1.0.0",
+  "description": "TCP Network Toolkit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvcbox/node-tcp-network-toolkit.git"
+  },
+  "keywords": [
+    "TCP",
+    "Network"
+  ],
+  "author": "mvcbox.org@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mvcbox/node-tcp-network-toolkit/issues"
+  },
+  "homepage": "https://github.com/mvcbox/node-tcp-network-toolkit#readme",
+  "dependencies": {
+    "clone-deep": "^4.0.0",
+    "extended-buffer": "^4.0.4"
+  }
+}
