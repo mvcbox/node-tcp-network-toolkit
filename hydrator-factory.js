@@ -4,11 +4,15 @@ const NetworkBuffer = require('./NetworkBuffer');
 const BaseProtocol = require('./BaseProtocol');
 
 /**
- * @param {Object} protocols
+ * @param {Array} protocols
  * @returns {Function}
  */
 module.exports = function (protocols) {
     let PacketClass;
+    protocols = protocols.reduce(function (accum, item) {
+        accum[item._opcode] = item;
+        return accum;
+    }, {});
 
     /**
      * @param {number} opcode

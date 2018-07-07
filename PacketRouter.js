@@ -40,8 +40,10 @@ class PacketRouter {
      * @private
      */
     _handlePacket(packet, socket) {
-        if (this._routes[packet._opcode]) {
-            this._routes[packet._opcode].forEach(function (handler) {
+        let opcode = packet.constructor._opcode;
+
+        if (this._routes[opcode]) {
+            this._routes[opcode].forEach(function (handler) {
                 handler(packet, socket);
             });
         }

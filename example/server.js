@@ -17,9 +17,17 @@ const {
  */
 class SomePacket extends BaseProtocol {
     constructor(buffer) {
-        super(1, buffer || {
+        super(buffer || {
             someProperty: 0 // Default value
         });
+    }
+
+    /**
+     * @returns {number}
+     * @private
+     */
+    static get _opcode() {
+        return 1;
     }
 
     /**
@@ -48,6 +56,7 @@ const router = packetRouterFactory();
 
 router.addRoute(1, function (packet, client) {
     console.log('SomePacket route:', packet);
+    console.log('SomePacket route:', packet.someProperty);
 
     packet.someProperty = 123;
 
@@ -64,9 +73,9 @@ router.addRoute('*', function (packet, client) {
 /**
  * Packet map for hydrator
  */
-const hydratorMap = {
-    1: SomePacket // opcode: PacketClass
-};
+const hydratorMap = [
+    SomePacket
+];
 
 const hydrator = hydratorFactory(hydratorMap);
 

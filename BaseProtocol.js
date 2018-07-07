@@ -4,16 +4,17 @@ const NetworkBuffer = require('./NetworkBuffer');
 
 class BaseProtocol {
     /**
-     * @param {number} opcode
-     * @param {NetworkBuffer} buffer
+     * @param {NetworkBuffer|Buffer|Object} buffer
      */
-    constructor(opcode, buffer) {
-        this._opcode = opcode;
-
+    constructor(buffer) {
         if (buffer instanceof NetworkBuffer) {
             this._unmarshal(buffer);
         } else if (buffer instanceof Object) {
             Object.assign(this, buffer);
+        } else if (buffer instanceof Buffer) {
+            this._unmarshal((new NetworkBuffer({
+                maxBufferLength: buffer.length
+            }))._writeNativeBuffer(buffer));
         }
     }
 
@@ -23,7 +24,7 @@ class BaseProtocol {
      */
     _buildPacket() {
         let buffer = this._marshal();
-        return buffer.writeCUInt(buffer.length, true).writeCUInt(this._opcode, true);
+        return buffer.writeCUInt(buffer.length, true).writeCUInt(this.constructor._opcode, true);
     }
 
     /**
@@ -35,6 +36,19 @@ class BaseProtocol {
         return new NetworkBuffer({
             maxBufferLength: maxBufferLength && maxBufferLength + 10 || 1048576
         });
+    }
+
+    /**
+     * @returns {number}
+     * @private
+     */
+    static get _opcode() {
+        /**
+         * Example:
+         *
+         * return 1;
+         */
+        throw new Error('You must implement the _opcode() method');
     }
 
     /**
