@@ -100,6 +100,58 @@ class NetworkBuffer extends ExtendedBuffer {
 
         return this._writeCUIntToBuffer(this, value, noAssert);
     }
+
+    /**
+     * @param {string} encoding
+     * @param {boolean} noAssert
+     * @returns {string}
+     */
+    readNetworkString(encoding, noAssert) {
+        return this.readString(this.readCUInt(noAssert), encoding);
+    }
+
+    /**
+     * @param {string} value
+     * @param {string} encoding
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @returns {NetworkBuffer}
+     */
+    writeNetworkString(value, encoding, unshift, noAssert) {
+        if (unshift) {
+            return this.writeString(value, encoding, true).writeCUInt(Buffer.byteLength(value, encoding), true, noAssert);
+        }
+
+        return this.writeCUInt(Buffer.byteLength(value, encoding), false, noAssert).writeString(value, encoding, false);
+    }
+
+    /**
+     * @param {boolean} noAssert
+     * @param {number} maxBufferLength
+     * @returns {NetworkBuffer}
+     */
+    readNetworkBuffer(noAssert, maxBufferLength) {
+        let length = this.readCUInt(noAssert);
+        maxBufferLength = maxBufferLength || length + 10;
+
+        return this.readBuffer(length, false, {
+            maxBufferLength: maxBufferLength
+        });
+    }
+
+    /**
+     * @param {NetworkBuffer|Buffer} value
+     * @param {boolean} unshift
+     * @param {boolean} noAssert
+     * @returns {NetworkBuffer}
+     */
+    writeNetworkBuffer(value, unshift, noAssert) {
+        if (unshift) {
+            return this.writeBuffer(value, true).writeCUInt(value.length, true, noAssert);
+        }
+
+        return this.writeCUInt(value.length, false, noAssert).writeBuffer(value, false);
+    }
 }
 
 module.exports = NetworkBuffer;

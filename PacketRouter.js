@@ -8,9 +8,7 @@ class PacketRouter {
      *
      */
     constructor() {
-        this._routes = {
-            '*': []
-        };
+        this._routes = {};
     }
 
     /**
@@ -22,9 +20,9 @@ class PacketRouter {
 
         return new (class extends Writable {
             /**
-             * @param chunk
-             * @param encoding
-             * @param done
+             * @param {Buffer} chunk
+             * @param {string} encoding
+             * @param {Function} done
              * @private
              */
             _write(chunk, encoding, done) {
@@ -47,9 +45,11 @@ class PacketRouter {
             });
         }
 
-        this._routes['*'].forEach(function (handler) {
-            handler(packet, socket);
-        });
+        if (this._routes['*']) {
+            this._routes['*'].forEach(function (handler) {
+                handler(packet, socket);
+            });
+        }
     }
 
     /**
