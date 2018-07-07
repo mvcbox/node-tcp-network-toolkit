@@ -52,6 +52,14 @@ class BaseProtocol {
     }
 
     /**
+     * @returns {number}
+     * @private
+     */
+    get _opcode() {
+        return this.constructor._opcode;
+    }
+
+    /**
      * @returns {NetworkBuffer}
      * @private
      */
