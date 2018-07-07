@@ -20,7 +20,7 @@ module.exports = function (hydrator, options) {
     let length;
     let opcode;
 
-    return new Transform(Object.assign({}, {
+    return new Transform(Object.assign({
         /**
          *
          */
