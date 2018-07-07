@@ -27,6 +27,7 @@ class PacketRouter {
              */
             _write(chunk, encoding, done) {
                 _this._handlePacket(chunk, socket);
+                done();
             }
         })({
             objectMode: true
