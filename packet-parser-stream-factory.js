@@ -7,6 +7,7 @@ const cloneDeep = require('clone-deep');
 /**
  * @param {Function} hydrator
  * @param {Object} [options]
+ * @param {number} [options.gcThreshold]
  * @param {Object} [options.buffer]
  * @param {number} [options.buffer.maxBufferLength]
  * @param {Object} [options.stream]
@@ -15,6 +16,7 @@ const cloneDeep = require('clone-deep');
 module.exports = function (hydrator, options) {
     options = cloneDeep(options || {});
     let buffer = new NetworkBuffer(options.buffer || {});
+    let gcThreshold = options.gcThreshold || 104857600;
     let oldPointer;
     let packet;
     let length;
@@ -32,6 +34,10 @@ module.exports = function (hydrator, options) {
          * @param {Function} done
          */
         transform(chunk, encoding, done) {
+            if (buffer.getFreeSpace() < gcThreshold) {
+                buffer.gc();
+            }
+
             buffer._writeNativeBuffer(chunk);
 
             while (true) {

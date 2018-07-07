@@ -2,13 +2,14 @@
 
 const { Writable } = require('stream');
 const BaseProtocol = require('./BaseProtocol');
+const eachSeries = require('async/eachSeries');
 
 class PacketRouter {
     /**
      *
      */
     constructor() {
-        this._routes = {};
+        this._handlers = [];
     }
 
     /**
@@ -41,33 +42,27 @@ class PacketRouter {
      */
     _handlePacket(packet, socket) {
         let opcode = packet.constructor._opcode;
+        
+        eachSeries(this._handlers, function (item, next) {
+            if (undefined === item.opcode || item.opcode.includes(opcode)) {
+                return item.handler(packet, socket, next);
+            }
 
-        if (this._routes[opcode]) {
-            this._routes[opcode].forEach(function (handler) {
-                handler(packet, socket);
-            });
-        }
-
-        if (this._routes['*']) {
-            this._routes['*'].forEach(function (handler) {
-                handler(packet, socket);
-            });
-        }
+            next();
+        });
     }
 
     /**
-     * @param {Array|number|string} opcodes
-     * @param {Function} handler
+     * @param {Array} args
      * @returns {PacketRouter}
      */
-    addRoute(opcodes, handler) {
-        if (!Array.isArray(opcodes)) {
-            opcodes = [opcodes];
+    use(...args) {
+        if (args.length) {
+            this._handlers.push({
+                opcode: 1 === args.length ? undefined : [].concat(args[0]),
+                handler: 1 === args.length ? args[0] : args[1]
+            });
         }
-
-        opcodes.forEach(opcode => {
-            this._routes[opcode] ? this._routes[opcode].push(handler) : this._routes[opcode] = [handler];
-        });
 
         return this;
     }

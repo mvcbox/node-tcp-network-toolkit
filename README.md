@@ -45,10 +45,21 @@ const {
  * @property {number} someProperty
  */
 class SomePacket extends BaseProtocol {
+    /**
+     * @param {NetworkBuffer|Buffer|Object} buffer
+     */
     constructor(buffer) {
-        super(1, buffer || {
+        super(buffer || {
             someProperty: 0 // Default value
         });
+    }
+
+    /**
+     * @returns {number}
+     * @private
+     */
+    static get _opcode() {
+        return 1;
     }
 
     /**
@@ -75,29 +86,46 @@ class SomePacket extends BaseProtocol {
 
 const router = packetRouterFactory();
 
-router.addRoute(1, function (packet, client) {
-    console.log('SomePacket route:', packet);
-
-    packet.someProperty = 123;
-
-    client.write(packet._buildPacket().buffer);
+// Add middleware
+router.use(function (packet, client, next) {
+    console.log('Middleware 1:', packet);
+    next();
 });
 
-router.addRoute('*', function (packet, client) {
-    console.log('Any packet route:', packet);
+// Add route
+router.use(1, function (packet, client, next) {
+    console.log('SomePacket route 1:', packet);
+    packet.someProperty = 123;
+    client.write(packet._buildPacket().buffer);
+    next();
+});
+
+// Add route
+router.use(5, function (packet, client, next) {
+    console.log('SomePacket route 5:', packet);
+    next();
+});
+
+// Add route
+router.use([1, 2, 3], function (packet, client, next) {
+    console.log('SomePacket route [1, 2, 3]:', packet);
+    packet.someProperty = 456;
+    client.write(packet._buildPacket().buffer);
+    next();
+});
+
+// Add middleware
+router.use(function (packet, client, next) {
+    console.log('Middleware 2:', packet);
+    next();
 });
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 // Create hydrator
 
-/**
- * Packet map for hydrator
- */
-const hydratorMap = {
-    1: SomePacket // opcode: PacketClass
-};
-
-const hydrator = hydratorFactory(hydratorMap);
+const hydrator = hydratorFactory([
+    SomePacket
+]);
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 // TCP Server
@@ -105,4 +133,5 @@ const hydrator = hydratorFactory(hydratorMap);
 net.createServer(function (client) {
     client.pipe(packetParserStreamFactory(hydrator)).pipe(router.stream(client));
 }).listen(3000);
+
 ```
