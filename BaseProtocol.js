@@ -23,7 +23,7 @@ class BaseProtocol {
      * @private
      */
     _buildPacket() {
-        let buffer = this._marshal();
+        let buffer = this._toPacket();
         return buffer.writeCUInt(buffer.length, true).writeCUInt(this.constructor._opcode, true);
     }
 
@@ -57,6 +57,24 @@ class BaseProtocol {
      */
     get _opcode() {
         return this.constructor._opcode;
+    }
+
+    /**
+     * @returns {NetworkBuffer}
+     * @private
+     */
+    _toPacket() {
+        return this._marshal();
+    }
+
+    /**
+     * @param {NetworkBuffer} buffer
+     * @returns {BaseProtocol}
+     * @private
+     */
+    _fromPacket(buffer) {
+        this._unmarshal(buffer);
+        return this;
     }
 
     /**

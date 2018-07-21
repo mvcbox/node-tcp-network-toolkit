@@ -22,7 +22,7 @@ module.exports = function (protocols) {
     return function (opcode, buffer) {
         if (opcode in protocols) {
             PacketClass = protocols[opcode];
-            return new PacketClass(buffer);
+            return (new PacketClass)._fromPacket(buffer);
         }
     };
 };
