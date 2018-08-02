@@ -127,15 +127,15 @@ class NetworkBuffer extends ExtendedBuffer {
 
     /**
      * @param {boolean} noAssert
-     * @param {number} maxBufferLength
+     * @param {boolean} asNative
+     * @param {number} reservedSize
      * @returns {NetworkBuffer}
      */
-    readNetworkBuffer(noAssert, maxBufferLength) {
+    readNetworkBuffer(noAssert, asNative, reservedSize) {
         let length = this.readCUInt(noAssert);
-        maxBufferLength = maxBufferLength || length + 10;
 
-        return this.readBuffer(length, false, {
-            maxBufferLength: maxBufferLength
+        return this.readBuffer(length, asNative, {
+            maxBufferLength: length + (reservedSize || 10)
         });
     }
 
