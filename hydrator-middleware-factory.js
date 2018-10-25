@@ -18,7 +18,7 @@ module.exports = function (protocols, fieldname) {
     return function (packet, socket, next) {
         if (packet.opcode in protocols) {
             PacketClass = protocols[packet.opcode];
-            packet[fieldname || 'packet'] = (new PacketClass)._fromPacket(buffer);
+            packet[fieldname || 'packet'] = (new PacketClass)._fromPacket(packet.payload);
         }
 
         next();
