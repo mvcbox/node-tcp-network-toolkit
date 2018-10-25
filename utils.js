@@ -13,3 +13,13 @@ exports.makeBoolObjectFromArray = function (array) {
 
     return result;
 };
+
+/**
+ * @param {Array} array
+ * @returns {Array}
+ */
+exports.arrayUnique = function (array) {
+    return array.filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+    });
+};

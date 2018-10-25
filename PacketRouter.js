@@ -2,7 +2,7 @@
 
 const Socket = require('net').Socket;
 const eachSeries = require('async/eachSeries');
-const { makeBoolObjectFromArray } = require('./utils');
+const { makeBoolObjectFromArray, arrayUnique } = require('./utils');
 
 class PacketRouter {
     /**
@@ -87,6 +87,8 @@ class PacketRouter {
     use(handler, opcode) {
         if (opcode) {
             opcode = makeBoolObjectFromArray(Array.isArray(opcode) ? opcode : [opcode]);
+        } else if (handler instanceof PacketRouter) {
+            opcode = makeBoolObjectFromArray(handler.getDefinedDpcodes());
         }
 
         this._handlers.push({
@@ -95,6 +97,23 @@ class PacketRouter {
         });
 
         return this;
+    }
+
+    /**
+     * @returns {Array}
+     */
+    getDefinedDpcodes() {
+        let result = [];
+
+        for (let item of this._handlers) {
+            if (item.handler instanceof PacketRouter) {
+                result.push(...item.handler.getDefinedDpcodes());
+            } else if (item.opcode) {
+                result.push(...Object.keys(item.opcode).map(Number));
+            }
+        }
+
+        return arrayUnique(result);
     }
 
     /**
