@@ -1,6 +1,6 @@
 {
   "name": "tcp-network-toolkit",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "TCP Network Toolkit",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,6 @@
   "homepage": "https://github.com/mvcbox/node-tcp-network-toolkit#readme",
   "dependencies": {
     "async": "^2.6.1",
-    "clone-deep": "^4.0.0",
     "extended-buffer": "^5.0.2"
   }
 }
