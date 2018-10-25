@@ -1,6 +1,6 @@
 {
   "name": "tcp-network-toolkit",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "TCP Network Toolkit",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,6 @@
   "dependencies": {
     "async": "^2.6.1",
     "clone-deep": "^4.0.0",
-    "extended-buffer": "^4.0.5"
+    "extended-buffer": "^5.0.2"
   }
 }

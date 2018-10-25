@@ -1,8 +1,8 @@
 'use strict';
 
-const { Writable } = require('stream');
-const BaseProtocol = require('./BaseProtocol');
+const Socket = require('net').Socket;
 const eachSeries = require('async/eachSeries');
+const { makeBoolObjectFromArray } = require('./utils');
 
 class PacketRouter {
     /**
@@ -10,60 +10,99 @@ class PacketRouter {
      */
     constructor() {
         this._handlers = [];
+        this._errorHandler = function () {}
     }
 
     /**
+     * @param {Array} packets
      * @param {Socket} socket
-     * @returns {Writable}
-     */
-    stream(socket) {
-        let _this = this;
-
-        return new (class extends Writable {
-            /**
-             * @param {Buffer} chunk
-             * @param {string} encoding
-             * @param {Function} done
-             * @private
-             */
-            _write(chunk, encoding, done) {
-                _this._handlePacket(chunk, socket);
-                done();
-            }
-        })({
-            objectMode: true
-        });
-    }
-
-    /**
-     * @param {BaseProtocol} packet
-     * @param {Socket} socket
-     * @private
-     */
-    _handlePacket(packet, socket) {
-        let opcode = packet.constructor._opcode;
-        
-        eachSeries(this._handlers, function (item, next) {
-            if (undefined === item.opcode || item.opcode.includes(opcode)) {
-                return item.handler(packet, socket, next);
-            }
-
-            next();
-        });
-    }
-
-    /**
-     * @param {Array} args
      * @returns {PacketRouter}
      */
-    use(...args) {
-        if (args.length) {
-            this._handlers.push({
-                opcode: 1 === args.length ? undefined : [].concat(args[0]),
-                handler: 1 === args.length ? args[0] : args[1]
-            });
+    handlePackets(packets, socket) {
+        for (let packet of packets) {
+            this.handlePacket(packet, socket);
         }
 
+        return this;
+    }
+
+    /**
+     * @param {Object} packet
+     * @param {Socket} socket
+     * @param {Function|undefined} callback
+     * @returns {PacketRouter}
+     */
+    handlePacket(packet, socket, callback) {
+        eachSeries(
+            this._handlers,
+
+            /**
+             * @param {Object} item
+             * @param {Function} next
+             */
+            (item, next) => {
+                if (item.opcode && !(packet.opcode in item.opcode)) {
+                    return next();
+                }
+
+                if (item.handler instanceof PacketRouter) {
+                    return item.handler.handlePacket(packet, socket, next);
+                }
+
+                try {
+                    let result = item.handler(packet, socket, function (err) {
+                        err ? next({ err, packet, socket }) : next();
+                    });
+
+                    if (result && typeof result.catch === 'function') {
+                        result.catch(function (err) {
+                            next({ err, packet, socket });
+                        });
+                    }
+                } catch (err) {
+                    next({ err, packet, socket });
+                }
+            },
+
+            /**
+             * @param {*} err
+             */
+            err => {
+                if (callback) {
+                    return callback(err);
+                }
+
+                err && this._errorHandler(err);
+            }
+        );
+
+        return this;
+    }
+
+    /**
+     * @param {Function|PacketRouter} handler
+     * @param {Array|undefined} opcode
+     * @returns {PacketRouter}
+     */
+    use(handler, opcode) {
+        if (opcode) {
+            opcode = makeBoolObjectFromArray(Array.isArray(opcode) ? opcode : [opcode]);
+        }
+
+        this._handlers.push({
+            handler,
+            opcode
+        });
+
+        return this;
+    }
+
+    /**
+     * @param {Function} errorHandler
+     * @returns {PacketRouter}
+     */
+    setErrorHandler(errorHandler) {
+        this._errorHandler = errorHandler;
         return this;
     }
 }

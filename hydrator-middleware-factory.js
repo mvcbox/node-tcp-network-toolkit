@@ -5,24 +5,22 @@ const BaseProtocol = require('./BaseProtocol');
 
 /**
  * @param {Array} protocols
+ * @param {string} fieldname
  * @returns {Function}
  */
-module.exports = function (protocols) {
+module.exports = function (protocols, fieldname) {
     let PacketClass;
     protocols = protocols.reduce(function (accum, item) {
         accum[item._opcode] = item;
         return accum;
     }, {});
 
-    /**
-     * @param {number} opcode
-     * @param {NetworkBuffer} buffer
-     * @returns {BaseProtocol}
-     */
-    return function (opcode, buffer) {
-        if (opcode in protocols) {
-            PacketClass = protocols[opcode];
-            return (new PacketClass)._fromPacket(buffer);
+    return function (packet, socket, next) {
+        if (packet.opcode in protocols) {
+            PacketClass = protocols[packet.opcode];
+            packet[fieldname || 'packet'] = (new PacketClass)._fromPacket(buffer);
         }
+
+        next();
     };
 };
