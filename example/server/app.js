@@ -3,6 +3,7 @@
 const {
     hydratorMiddlewareFactory,
     packetRouterFactory,
+    writeToSocket
 } = require('../../index');
 
 const app = module.exports = packetRouterFactory();
@@ -22,7 +23,7 @@ app.use(function (packet, client) {
             timestamp: Math.floor(Date.now() / 1000)
         });
 
-        client.write(pong._buildPacket().buffer);
+        writeToSocket(client, pong).then(console.log).catch(console.error);
     }, 3000);
 }, 1);
 
