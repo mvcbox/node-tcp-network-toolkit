@@ -2,7 +2,7 @@
 
 const NetworkBuffer = require('./NetworkBuffer');
 
-class BaseProtocol {
+class ProtocolAbstract {
     /**
      * @param {NetworkBuffer|Buffer|Object} buffer
      */
@@ -69,7 +69,7 @@ class BaseProtocol {
 
     /**
      * @param {NetworkBuffer} buffer
-     * @returns {BaseProtocol}
+     * @returns {ProtocolAbstract}
      * @private
      */
     _fromPacket(buffer) {
@@ -110,4 +110,4 @@ class BaseProtocol {
     }
 }
 
-module.exports = BaseProtocol;
+module.exports = ProtocolAbstract;

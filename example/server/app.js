@@ -3,12 +3,14 @@
 const {
     hydratorMiddlewareFactory,
     packetRouterFactory,
-    writeToSocket
+    writeToSocket,
+    ProtocolAbstract
 } = require('../../index');
 
 const app = module.exports = packetRouterFactory();
 
 // protocol
+const Ping = require('./protocol/Ping');
 const Pong = require('./protocol/Pong');
 
 app.use(hydratorMiddlewareFactory(require('./protocol/index')));
@@ -25,7 +27,7 @@ app.use(function (packet, client) {
 
         writeToSocket(client, pong).then(console.log).catch(console.error);
     }, 3000);
-}, 1);
+}, Ping);
 
 app.setErrorHandler(function (err) {
     console.error('ServerError:', err)

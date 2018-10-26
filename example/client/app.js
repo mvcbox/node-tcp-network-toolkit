@@ -10,6 +10,7 @@ const app = module.exports = packetRouterFactory();
 
 // protocol
 const Ping = require('./protocol/Ping');
+const Pong = require('./protocol/Pong');
 
 app.use(hydratorMiddlewareFactory(require('./protocol/index')));
 
@@ -25,7 +26,7 @@ app.use(function (packet, client) {
 
         writeToSocket(client, ping).then(console.log).catch(console.error);
     }, 3000);
-}, 2);
+}, Pong);
 
 app.setErrorHandler(function (err) {
     console.error('ClientError:', err)

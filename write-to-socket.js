@@ -1,12 +1,12 @@
 'use strict';
 
 const Socket = require('net').Socket;
-const BaseProtocol = require('./BaseProtocol');
 const NetworkBuffer = require('./NetworkBuffer');
+const ProtocolAbstract = require('./ProtocolAbstract');
 
 /**
  * @param {Socket} socket
- * @param {BaseProtocol|Object} packet
+ * @param {ProtocolAbstract|Object} packet
  */
 module.exports = function (socket, packet) {
     if (!socket.writable) {
@@ -14,7 +14,7 @@ module.exports = function (socket, packet) {
     }
 
     return new Promise(function (resolve, reject) {
-        if (packet instanceof BaseProtocol) {
+        if (packet instanceof ProtocolAbstract) {
             packet = packet._buildPacket().buffer;
         } else if (packet && packet.opcode && packet.payload instanceof NetworkBuffer) {
             packet = packet.payload.writeCUInt(packet.payload.length, true).writeCUInt(packet.opcode, true).buffer;

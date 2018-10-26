@@ -1,12 +1,12 @@
 'use strict';
 
-const { BaseProtocol } = require('../../../index');
+const { ProtocolAbstract } = require('../../../index');
 
 /**
  * @property {number} clientId
  * @property {number} timestamp
  */
-class Ping extends BaseProtocol {
+class Ping extends ProtocolAbstract {
     /**
      * @param {NetworkBuffer|Buffer|Object} buffer
      */

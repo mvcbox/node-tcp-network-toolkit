@@ -1,8 +1,5 @@
 'use strict';
 
-const NetworkBuffer = require('./NetworkBuffer');
-const BaseProtocol = require('./BaseProtocol');
-
 /**
  * @param {Array} protocols
  * @param {string} fieldname

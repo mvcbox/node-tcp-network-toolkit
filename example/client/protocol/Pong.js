@@ -1,12 +1,12 @@
 'use strict';
 
-const { BaseProtocol } = require('../../../index');
+const { ProtocolAbstract } = require('../../../index');
 
 /**
  * @property {number} serverId
  * @property {number} timestamp
  */
-class Pong extends BaseProtocol {
+class Pong extends ProtocolAbstract {
     /**
      * @param {NetworkBuffer|Buffer|Object} buffer
      */
