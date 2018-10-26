@@ -16,6 +16,8 @@ module.exports = function (socket, packet) {
     return new Promise(function (resolve, reject) {
         if (packet instanceof ProtocolAbstract) {
             packet = packet._buildPacket().buffer;
+        } else if (packet instanceof NetworkBuffer) {
+            packet = packet.buffer;
         } else if (packet && packet.opcode && packet.payload instanceof NetworkBuffer) {
             packet = packet.payload.writeCUInt(packet.payload.length, true).writeCUInt(packet.opcode, true).buffer;
         } else if (!(packet instanceof Buffer)) {
