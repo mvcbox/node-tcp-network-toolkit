@@ -51,7 +51,6 @@ module.exports = function (options) {
 
             result.push({
                 opcode,
-                length,
                 payload: buffer.readBuffer(length, false, {maxBufferLength: length})
             });
         }
