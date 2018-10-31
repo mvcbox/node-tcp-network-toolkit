@@ -1,8 +1,8 @@
 'use strict';
 
 const Socket = require('net').Socket;
-const NetworkBuffer = require('./NetworkBuffer');
 const ProtocolAbstract = require('./ProtocolAbstract');
+const getBufferFromPacket = require('./get-buffer-from-packet');
 
 /**
  * @param {Socket} socket
@@ -14,15 +14,7 @@ module.exports = function (socket, packet) {
     }
 
     return new Promise(function (resolve, reject) {
-        if (packet instanceof ProtocolAbstract) {
-            packet = packet._buildPacket().buffer;
-        } else if (packet instanceof NetworkBuffer) {
-            packet = packet.buffer;
-        } else if (packet && packet.opcode && packet.payload instanceof NetworkBuffer) {
-            packet = packet.payload.writeCUInt(packet.payload.length, true).writeCUInt(packet.opcode, true).buffer;
-        } else if (!(packet instanceof Buffer)) {
-            return reject(new TypeError('"packet" has incorrect type'));
-        }
+        packet = getBufferFromPacket(packet);
 
         function errorCallback(err) {
             socket.removeListener('error', errorCallback).removeListener('close', closeCallback);
