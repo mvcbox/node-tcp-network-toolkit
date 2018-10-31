@@ -14,23 +14,24 @@ module.exports = function (socket, packet) {
     }
 
     return new Promise(function (resolve, reject) {
-        packet = getBufferFromPacket(packet);
+        if (socket.write(getBufferFromPacket(packet))) {
+            return resolve(true);
+        }
 
-        function errorCallback(err) {
-            socket.removeListener('error', errorCallback).removeListener('close', closeCallback);
+        socket.once('drain', onDrain).once('error', onError).once('close', onClose);
+
+        function onDrain() {
+            socket.removeListener('error', onError).removeListener('close', onClose);
+        }
+
+        function onError(err) {
+            socket.removeListener('drain', onDrain).removeListener('close', onClose);
             reject(err);
         }
 
-        function closeCallback() {
-            socket.removeListener('error', errorCallback).removeListener('close', closeCallback);
+        function onClose() {
+            socket.removeListener('error', onError).removeListener('drain', onDrain);
             reject(new Error('Connection lost'));
         }
-
-        socket.on('error', errorCallback).on('close', closeCallback);
-
-        socket.write(packet, function () {
-            socket.removeListener('error', errorCallback).removeListener('close', closeCallback);
-            resolve(true);
-        });
     });
 };
