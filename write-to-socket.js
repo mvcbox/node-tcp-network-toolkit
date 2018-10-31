@@ -22,6 +22,7 @@ module.exports = function (socket, packet) {
 
         function onDrain() {
             socket.removeListener('error', onError).removeListener('close', onClose);
+            resolve(true);
         }
 
         function onError(err) {
