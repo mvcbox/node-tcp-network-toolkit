@@ -6,7 +6,7 @@ const { ProtocolAbstract } = require('../../../index');
  * @property {number} serverId
  * @property {number} timestamp
  */
-class Pong extends ProtocolAbstract {
+module.exports = class Pong extends ProtocolAbstract {
     /**
      * @param {NetworkBuffer|Buffer|Object} buffer
      */
@@ -45,6 +45,4 @@ class Pong extends ProtocolAbstract {
         this.serverId = buffer.readInt32BE();
         this.timestamp = buffer.readInt32BE();
     }
-}
-
-module.exports = Pong;
+};

@@ -6,7 +6,7 @@ const { ProtocolAbstract } = require('../../../index');
  * @property {number} clientId
  * @property {number} timestamp
  */
-class Ping extends ProtocolAbstract {
+module.exports = class Ping extends ProtocolAbstract {
     /**
      * @param {NetworkBuffer|Buffer|Object} buffer
      */
@@ -45,6 +45,4 @@ class Ping extends ProtocolAbstract {
         this.clientId = buffer.readInt32BE();
         this.timestamp = buffer.readInt32BE();
     }
-}
-
-module.exports = Ping;
+};
