@@ -89,7 +89,7 @@ class PacketRouter {
         if (opcode) {
             opcode = Array.isArray(opcode) ? opcode : [opcode];
         } else if (handler instanceof PacketRouter) {
-            opcode = handler.getDefinedDpcodes();
+            opcode = handler.getDefinedOpcodes();
         }
 
         if (opcode) {
@@ -109,12 +109,12 @@ class PacketRouter {
     /**
      * @returns {Array}
      */
-    getDefinedDpcodes() {
+    getDefinedOpcodes() {
         let result = [];
 
         for (let item of this._handlers) {
             if (item.handler instanceof PacketRouter) {
-                result.push(...item.handler.getDefinedDpcodes());
+                result.push(...item.handler.getDefinedOpcodes());
             } else if (item.opcode) {
                 result.push(...Object.keys(item.opcode).map(Number));
             }
