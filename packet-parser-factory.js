@@ -11,15 +11,37 @@ const NetworkBuffer = require('./NetworkBuffer');
  */
 module.exports = function (options) {
     options |= {};
-    let buffer = new NetworkBuffer(options.buffer || {});
+    let buffer = new NetworkBuffer(options.buffer || {
+        maxBufferLength: 5242880
+    });
     buffer.allocEnd(buffer.getFreeSpace());
-    let gcThreshold = options.gcThreshold || 104857600;
+    let gcThreshold = options.gcThreshold || 1048576;
     let oldPointer;
     let length;
     let opcode;
     let result;
 
-    return function (chunk) {
+    Object.defineProperty(parser, '_buffer', {
+        /**
+         * @returns {NetworkBuffer}
+         */
+        get: function () {
+            return buffer;
+        },
+
+        /**
+         * @param {NetworkBuffer} value
+         */
+        set: function (value) {
+            buffer = value;
+        }
+    });
+
+    /**
+     * @param {Buffer} chunk
+     * @returns {Array}
+     */
+    function parser(chunk) {
         if (buffer.getFreeSpace() < gcThreshold) {
             buffer.gc();
             buffer.allocEnd(buffer.getFreeSpace());
@@ -56,5 +78,7 @@ module.exports = function (options) {
         }
 
         return result;
-    };
+    }
+
+    return parser;
 };
