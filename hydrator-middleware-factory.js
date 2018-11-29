@@ -7,7 +7,7 @@
  */
 module.exports = function (protocols, fieldname) {
     let PacketClass;
-    protocols = protocols.reduce(function (accum, item) {
+    protocols = Object.values(protocols).reduce(function (accum, item) {
         accum[item._opcode] = item;
         return accum;
     }, {});

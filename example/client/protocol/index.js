@@ -1,6 +1,4 @@
 'use strict';
 
-module.exports = [
-    require('./Ping'),
-    require('./Pong')
-];
+exports.Ping = require('./Ping');
+exports.Pong = require('./Pong');
