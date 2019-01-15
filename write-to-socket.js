@@ -6,7 +6,7 @@ const getBufferFromPacket = require('./get-buffer-from-packet');
 
 /**
  * @param {Socket} socket
- * @param {ProtocolAbstract|Object} packet
+ * @param {Buffer|NetworkBuffer|ProtocolAbstract|Object} packet
  */
 module.exports = function (socket, packet) {
     if (!socket.writable) {

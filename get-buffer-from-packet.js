@@ -4,7 +4,7 @@ const NetworkBuffer = require('./NetworkBuffer');
 const ProtocolAbstract = require('./ProtocolAbstract');
 
 /**
- * @param {*} packet
+ * @param {Buffer|NetworkBuffer|ProtocolAbstract|Object} packet
  * @returns {Buffer}
  */
 module.exports = function (packet) {
