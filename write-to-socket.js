@@ -13,11 +13,11 @@ module.exports = function (socket, packet) {
         return Promise.resolve(false);
     }
 
-    return new Promise(function (resolve, reject) {
-        if (socket.write(getBufferFromPacket(packet))) {
-            return resolve(true);
-        }
+    if (socket.write(getBufferFromPacket(packet))) {
+        return Promise.resolve(true);
+    }
 
+    return new Promise(function (resolve, reject) {
         socket.once('drain', onDrain).once('error', onError).once('close', onClose);
 
         function onDrain() {
