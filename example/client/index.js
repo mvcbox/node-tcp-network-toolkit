@@ -14,7 +14,7 @@ const client = net.createConnection(3000, function () {
         timestamp: Math.floor(Date.now() / 1000)
     });
 
-    client.write(ping._buildPacket().buffer);
+    client.write(ping._toPacketWithHeaders().buffer);
 
     client.on('data', function (chunk) {
         app.handlePackets(packetParser(chunk), client);

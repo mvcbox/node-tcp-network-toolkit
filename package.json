@@ -1,6 +1,6 @@
 {
   "name": "tcp-network-toolkit",
-  "version": "6.3.5",
+  "version": "7.0.0",
   "description": "TCP Network Toolkit",
   "main": "index.js",
   "scripts": {

@@ -22,7 +22,7 @@ class ProtocolAbstract {
      * @returns {NetworkBuffer}
      * @private
      */
-    _buildPacket() {
+    _toPacketWithHeaders() {
         let buffer = this._toPacket();
         return buffer.writeCUInt(buffer.length, true).writeCUInt(this.constructor._opcode, true);
     }
@@ -33,9 +33,11 @@ class ProtocolAbstract {
      * @private
      */
     _makeBuffer(maxBufferLength) {
-        return new NetworkBuffer({
+        let buffer = new NetworkBuffer({
             maxBufferLength: maxBufferLength && maxBufferLength + 10 || 1048576
         });
+
+        return buffer.allocEnd(buffer.getFreeSpace());
     }
 
     /**

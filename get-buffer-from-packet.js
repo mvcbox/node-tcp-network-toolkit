@@ -13,7 +13,7 @@ module.exports = function (packet) {
     } else if (packet instanceof NetworkBuffer) {
         return packet.buffer;
     } else if (packet instanceof ProtocolAbstract) {
-        return packet._buildPacket().buffer;
+        return packet._toPacketWithHeaders().buffer;
     } else if (packet && packet.opcode && packet.payload instanceof NetworkBuffer) {
         return packet.payload.writeCUInt(packet.payload.length, true).writeCUInt(packet.opcode, true).buffer;
     }
