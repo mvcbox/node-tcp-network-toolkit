@@ -2,7 +2,7 @@
 
 const NetworkBuffer = require('./NetworkBuffer');
 
-class ProtocolAbstract {
+module.exports = class ProtocolAbstract {
     /**
      * @param {NetworkBuffer|Buffer|Object} buffer
      */
@@ -110,6 +110,4 @@ class ProtocolAbstract {
          */
         throw new Error('You must implement the _unmarshal() method');
     }
-}
-
-module.exports = ProtocolAbstract;
+};

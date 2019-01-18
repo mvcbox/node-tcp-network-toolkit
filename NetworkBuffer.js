@@ -2,7 +2,7 @@
 
 const ExtendedBuffer = require('extended-buffer');
 
-class NetworkBuffer extends ExtendedBuffer {
+module.exports = class NetworkBuffer extends ExtendedBuffer {
     /**
      * @param {NetworkBuffer} buffer
      * @param {number} value
@@ -150,6 +150,4 @@ class NetworkBuffer extends ExtendedBuffer {
 
         return this.writeCUInt(value.length, false, noAssert).writeBuffer(value, false);
     }
-}
-
-module.exports = NetworkBuffer;
+};

@@ -5,7 +5,7 @@ const eachSeries = require('async/eachSeries');
 const ProtocolAbstract = require('./ProtocolAbstract');
 const { makeBoolObjectFromArray, arrayUnique } = require('./utils');
 
-class PacketRouter {
+module.exports = class PacketRouter {
     /**
      *
      */
@@ -131,6 +131,4 @@ class PacketRouter {
         this._errorHandler = errorHandler;
         return this;
     }
-}
-
-module.exports = PacketRouter;
+};
