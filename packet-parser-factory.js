@@ -43,8 +43,7 @@ module.exports = function (options) {
      */
     function parser(chunk) {
         if (buffer.getFreeSpace() < gcThreshold) {
-            buffer.gc();
-            buffer.allocEnd(buffer.getFreeSpace());
+            buffer.gc().allocEnd(buffer.getFreeSpace());
         }
 
         buffer._writeNativeBuffer(chunk);
