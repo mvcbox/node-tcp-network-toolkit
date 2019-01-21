@@ -17,23 +17,18 @@ module.exports = class PacketRouter {
     /**
      * @param {Array} packets
      * @param {Socket} socket
-     * @returns {PacketRouter}
      */
     handlePackets(packets, socket) {
         for (let packet of packets) {
             this.handlePacket(packet, socket);
         }
-
-        return this;
     }
 
     /**
      * @param {Object} packet
      * @param {Socket} socket
-     * @param {Function|undefined} callback
-     * @returns {PacketRouter}
      */
-    handlePacket(packet, socket, callback) {
+    handlePacket(packet, socket) {
         eachSeries(
             this._handlers,
 
@@ -46,16 +41,12 @@ module.exports = class PacketRouter {
                     return next();
                 }
 
-                if (item.handler instanceof PacketRouter) {
-                    return item.handler.handlePacket(packet, socket, next);
-                }
-
                 try {
                     let result = item.handler(packet, socket, function (err) {
                         err ? next({ err, packet, socket }) : next();
                     });
 
-                    if (result && typeof result.catch === 'function') {
+                    if (result && typeof result.then === 'function') {
                         result.catch(function (err) {
                             next({ err, packet, socket });
                         });
@@ -69,37 +60,34 @@ module.exports = class PacketRouter {
              * @param {*} err
              */
             err => {
-                if (callback) {
-                    return callback(err);
-                }
-
                 err && this._errorHandler(err);
             }
         );
-
-        return this;
     }
 
     /**
-     * @param {Function|PacketRouter} handler
-     * @param {Array|undefined} opcode
+     * @param {Function|Array} handler
+     * @param {Array|ProtocolAbstract|number|undefined} opcode
      * @returns {PacketRouter}
      */
     use(handler, opcode) {
-        if (opcode) {
-            opcode = Array.isArray(opcode) ? opcode : [opcode];
-        } else if (handler instanceof PacketRouter) {
-            opcode = handler.getDefinedOpcodes();
+        if (Array.isArray(handler)) {
+            for (let { handler: _handler, opcode: _opcode } of handler) {
+                this.use(_handler, _opcode);
+            }
+
+            return this;
         }
 
         if (opcode) {
+            opcode = Array.isArray(opcode) ? opcode : [opcode];
             opcode = opcode.map(function (item) {
                 return item && item.prototype instanceof ProtocolAbstract ? item._opcode : item;
             });
         }
 
         this._handlers.push({
-            handler,
+            handler: handler.bind(this),
             opcode: opcode && makeBoolObjectFromArray(opcode)
         });
 
@@ -107,28 +95,11 @@ module.exports = class PacketRouter {
     }
 
     /**
-     * @returns {Array}
-     */
-    getDefinedOpcodes() {
-        let result = [];
-
-        for (let item of this._handlers) {
-            if (item.handler instanceof PacketRouter) {
-                result.push(...item.handler.getDefinedOpcodes());
-            } else if (item.opcode) {
-                result.push(...Object.keys(item.opcode).map(Number));
-            }
-        }
-
-        return arrayUnique(result);
-    }
-
-    /**
      * @param {Function} errorHandler
      * @returns {PacketRouter}
      */
     setErrorHandler(errorHandler) {
-        this._errorHandler = errorHandler;
+        this._errorHandler = errorHandler.bind(this);
         return this;
     }
 };
