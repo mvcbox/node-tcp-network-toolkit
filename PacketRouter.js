@@ -36,7 +36,7 @@ module.exports = class PacketRouter {
              * @param {Object} item
              * @param {Function} next
              */
-            (item, next) => {
+            function(item, next) {
                 if (item.opcode && !(packet.opcode in item.opcode)) {
                     return next();
                 }
