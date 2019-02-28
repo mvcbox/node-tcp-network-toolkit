@@ -10,7 +10,7 @@ const NetworkBuffer = require('./NetworkBuffer');
  * @returns {*}
  */
 module.exports = function (options) {
-    options |= {};
+    options = options || {};
     let buffer = new NetworkBuffer(options.buffer || {
         maxBufferLength: 5242880
     });

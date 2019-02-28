@@ -1,8 +1,10 @@
 'use strict';
 
 const Socket = require('net').Socket;
+const Writable = require('stream').Writable;
 const eachSeries = require('async/eachSeries');
 const ProtocolAbstract = require('./ProtocolAbstract');
+const packetParserFactory = require('./packet-parser-factory');
 const makeBoolObjectFromArray = require('./utils').makeBoolObjectFromArray;
 
 module.exports = class PacketRouter {
@@ -11,6 +13,37 @@ module.exports = class PacketRouter {
      */
     constructor() {
         this._handlers = [];
+    }
+
+    /**
+     * @param {Object} options
+     * @param {Socket} options.socket
+     * @param {Function} options.packetParser
+     * @param {number} options.highWaterMark
+     * @param {boolean} options.decodeStrings
+     * @param {boolean} options.objectMode
+     * @returns {module:stream.internal.Writable}
+     */
+    writableStream(options) {
+        options = options || {};
+        const _this = this;
+        let packetParser = options.packetParser || packetParserFactory();
+
+        return new Writable({
+            objectMode: options.objectMode,
+            highWaterMark: options.highWaterMark,
+            decodeStrings: options.decodeStrings,
+
+            /**
+             * @param {Buffer} chunk
+             * @param {string} encoding
+             * @param {Function} callback
+             */
+            write(chunk, encoding, callback) {
+                _this.handlePackets(packetParser(chunk), options.socket);
+                callback();
+            }
+        });
     }
 
     /**
@@ -95,7 +128,7 @@ module.exports = class PacketRouter {
         }
 
         if (handler instanceof PacketRouter) {
-            opcode |= handler._handlers.reduce(function (accum, item) {
+            opcode = opcode || handler._handlers.reduce(function (accum, item) {
                 if (item.opcode) {
                     accum = accum.concat(Object.keys(item.opcode));
                 }

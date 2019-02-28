@@ -2,13 +2,8 @@
 
 const net = require('net');
 const app = require('./app');
-const packetParserFactory = require('../../index').packetParserFactory;
 
 net.createServer(function (client) {
     console.log('New client connection!');
-    let packetParser = packetParserFactory();
-
-    client.on('data', function (chunk) {
-        app.handlePackets(packetParser(chunk), client);
-    });
+    client.pipe(app.writableStream({ socket: client }));
 }).listen(3000);
