@@ -27,7 +27,7 @@ module.exports = class PacketRouter {
     writableStream(options) {
         options = options || {};
         const _this = this;
-        let packetParser = options.packetParser || packetParserFactory();
+        const packetParser = options.packetParser || packetParserFactory();
 
         return new Writable({
             objectMode: options.objectMode,
