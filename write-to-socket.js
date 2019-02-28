@@ -9,7 +9,7 @@ const getBufferFromPacket = require('./get-buffer-from-packet');
  * @param {Buffer|NetworkBuffer|ProtocolAbstract|Object} packet
  */
 module.exports = function (socket, packet) {
-    if (!socket.writable) {
+    if (socket.destroyed) {
         return Promise.resolve(false);
     }
 

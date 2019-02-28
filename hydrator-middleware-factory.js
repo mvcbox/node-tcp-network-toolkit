@@ -7,14 +7,15 @@
  */
 module.exports = function (protocols, fieldname) {
     let PacketClass;
-    protocols = Object.values(protocols).reduce(function (accum, item) {
-        accum[item._opcode] = item;
-        return accum;
-    }, {});
+    const _protocols = {};
+
+    for (let protocol in protocols) {
+        _protocols[protocols[protocol]._opcode] = protocols[protocol];
+    }
 
     return function (packet, socket, next) {
-        if (packet.opcode in protocols) {
-            PacketClass = protocols[packet.opcode];
+        if (packet.opcode in _protocols) {
+            PacketClass = _protocols[packet.opcode];
             packet[fieldname || 'packet'] = (new PacketClass)._fromPacket(packet.payload);
 
             if ('payload' !== fieldname) {

@@ -2,7 +2,7 @@
 
 const net = require('net');
 const app = require('./app');
-const { packetParserFactory } = require('../../index');
+const packetParserFactory = require('../../index').packetParserFactory;
 
 net.createServer(function (client) {
     console.log('New client connection!');

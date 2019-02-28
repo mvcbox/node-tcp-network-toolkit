@@ -2,8 +2,8 @@
 
 const net = require('net');
 const app = require('./app');
-const { packetParserFactory } = require('../../index');
 const Ping = require('./protocol/Ping');
+const packetParserFactory = require('../../index').packetParserFactory;
 
 const client = net.createConnection(3000, function () {
     console.log('createConnection success!');

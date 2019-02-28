@@ -3,7 +3,7 @@
 const Socket = require('net').Socket;
 const eachSeries = require('async/eachSeries');
 const ProtocolAbstract = require('./ProtocolAbstract');
-const { makeBoolObjectFromArray } = require('./utils');
+const makeBoolObjectFromArray = require('./utils').makeBoolObjectFromArray;
 
 module.exports = class PacketRouter {
     /**
@@ -80,8 +80,8 @@ module.exports = class PacketRouter {
      */
     use(handler, opcode) {
         if (Array.isArray(handler)) {
-            for (let { handler: _handler, opcode: _opcode } of handler) {
-                this.use(_handler, _opcode);
+            for (let item of handler) {
+                this.use(item.handler, item.opcode);
             }
 
             return this;

@@ -1,6 +1,6 @@
 'use strict';
 
-const { ProtocolAbstract } = require('../../../index');
+const ProtocolAbstract = require('../../../index').ProtocolAbstract;
 
 /**
  * @property {number} serverId

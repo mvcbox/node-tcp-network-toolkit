@@ -1,11 +1,8 @@
 'use strict';
 
-const {
-    hydratorMiddlewareFactory,
-    packetRouterFactory,
-    writeToSocket,
-    ProtocolAbstract
-} = require('../../index');
+const writeToSocket = require('../../index').writeToSocket;
+const packetRouterFactory = require('../../index').packetRouterFactory;
+const hydratorMiddlewareFactory = require('../../index').hydratorMiddlewareFactory;
 
 const app = module.exports = packetRouterFactory();
 
