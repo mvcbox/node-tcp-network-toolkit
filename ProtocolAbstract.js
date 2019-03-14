@@ -9,12 +9,12 @@ module.exports = class ProtocolAbstract {
     constructor(buffer) {
         if (buffer instanceof NetworkBuffer) {
             this._unmarshal(buffer);
-        } else if (buffer instanceof Object) {
-            Object.assign(this, buffer);
         } else if (buffer instanceof Buffer) {
             this._unmarshal((new NetworkBuffer({
                 maxBufferLength: buffer.length
             }))._writeNativeBuffer(buffer));
+        } else if (buffer instanceof Object) {
+            Object.assign(this, buffer);
         }
     }
 
