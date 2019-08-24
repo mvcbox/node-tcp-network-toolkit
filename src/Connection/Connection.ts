@@ -5,15 +5,16 @@ import { Protocol } from '../Protocol';
 export class Connection {
     public socket: Socket;
     public output: Writable;
+    public session: Map<any, any> = new Map<any, any>();
 
     public constructor(socket: Socket, output: Writable) {
         this.socket = socket;
         this.output = output;
     }
 
-    public async writePacket(packet: Protocol | Buffer): Promise<boolean> {
-        if (this.socket.destroyed) {
-            return false;
+    public writePacket(packet: Protocol | Buffer): Promise<boolean> {
+        if (this.socket.destroyed || !this.output.writable) {
+            return Promise.resolve(false);
         }
 
         if (packet instanceof Protocol) {
@@ -21,7 +22,7 @@ export class Connection {
         }
 
         if (this.output.write(packet)) {
-            return true;
+            return Promise.resolve(true);
         }
 
         return new Promise((resolve, reject) => {
