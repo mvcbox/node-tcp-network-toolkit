@@ -1,16 +1,8 @@
-'use strict';
+import { ExtendedBuffer } from 'extended-buffer';
+import { NetworkBufferOptions } from './NetworkBufferOptions';
 
-const ExtendedBuffer = require('extended-buffer');
-
-module.exports = class NetworkBuffer extends ExtendedBuffer {
-    /**
-     * @param {NetworkBuffer} buffer
-     * @param {number} value
-     * @param {boolean} noAssert
-     * @returns {NetworkBuffer}
-     * @private
-     */
-    _writeCUIntToBuffer(buffer, value, noAssert) {
+export class NetworkBuffer extends ExtendedBuffer {
+    public _writeCUIntToBuffer(buffer: this, value: number, noAssert?: boolean): this {
         let tmp;
 
         if (value < 0x80) {
@@ -34,11 +26,7 @@ module.exports = class NetworkBuffer extends ExtendedBuffer {
         return this;
     }
 
-    /**
-     * @param {boolean} noAssert
-     * @returns {boolean}
-     */
-    isReadableCUInt(noAssert) {
+    public isReadableCUInt(): boolean {
         if (!this.isReadable(1)) {
             return false;
         }
@@ -59,11 +47,7 @@ module.exports = class NetworkBuffer extends ExtendedBuffer {
         return true;
     }
 
-    /**
-     * @param {boolean} noAssert
-     * @returns {number}
-     */
-    readCUInt(noAssert) {
+    public readCUInt(noAssert?: boolean): number {
         let value = this.readUIntBE(1, noAssert);
 
         switch (value & 0xE0) {
@@ -81,15 +65,10 @@ module.exports = class NetworkBuffer extends ExtendedBuffer {
         return value;
     }
 
-    /**
-     * @param {number} value
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @returns {NetworkBuffer}
-     */
-    writeCUInt(value, unshift, noAssert) {
+    public writeCUInt(value: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
-            let buffer = new this.constructor({
+            const ThisClass = <new(options?: NetworkBufferOptions) => this>this.constructor;
+            let buffer = new ThisClass({
                 maxBufferLength: 5
             });
 
@@ -99,23 +78,11 @@ module.exports = class NetworkBuffer extends ExtendedBuffer {
         return this._writeCUIntToBuffer(this, value, noAssert);
     }
 
-    /**
-     * @param {string} encoding
-     * @param {boolean} noAssert
-     * @returns {string}
-     */
-    readNetworkString(encoding, noAssert) {
+    public readNetworkString(encoding?: BufferEncoding, noAssert?: boolean): string {
         return this.readString(this.readCUInt(noAssert), encoding);
     }
 
-    /**
-     * @param {string} value
-     * @param {string} encoding
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @returns {NetworkBuffer}
-     */
-    writeNetworkString(value, encoding, unshift, noAssert) {
+    public writeNetworkString(value: string, encoding?: BufferEncoding, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             return this.writeString(value, encoding, true).writeCUInt(Buffer.byteLength(value, encoding), true, noAssert);
         }
@@ -123,31 +90,19 @@ module.exports = class NetworkBuffer extends ExtendedBuffer {
         return this.writeCUInt(Buffer.byteLength(value, encoding), false, noAssert).writeString(value, encoding, false);
     }
 
-    /**
-     * @param {boolean} noAssert
-     * @param {boolean} asNative
-     * @param {number} reservedSize
-     * @returns {NetworkBuffer}
-     */
-    readNetworkBuffer(noAssert, asNative, reservedSize) {
+    public readNetworkBuffer(noAssert?: boolean, asNative?: boolean, reservedSize?: number): this {
         let length = this.readCUInt(noAssert);
 
-        return this.readBuffer(length, asNative, {
+        return <this>this.readBuffer(length, asNative, {
             maxBufferLength: length + (reservedSize || 10)
         });
     }
 
-    /**
-     * @param {NetworkBuffer|Buffer} value
-     * @param {boolean} unshift
-     * @param {boolean} noAssert
-     * @returns {NetworkBuffer}
-     */
-    writeNetworkBuffer(value, unshift, noAssert) {
+    public writeNetworkBuffer(value: Buffer | NetworkBuffer, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             return this.writeBuffer(value, true).writeCUInt(value.length, true, noAssert);
         }
 
         return this.writeCUInt(value.length, false, noAssert).writeBuffer(value, false);
     }
-};
+}
