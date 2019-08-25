@@ -90,10 +90,13 @@ export class NetworkBuffer extends ExtendedBuffer {
         return this.writeCUInt(Buffer.byteLength(value, encoding), false, noAssert).writeString(value, encoding, false);
     }
 
-    public readNetworkBuffer(asNative?: boolean, reservedSize?: number, noAssert?: boolean): this {
+    public readNetworkBuffer(asNative: true, reservedSize?: number, noAssert?: boolean): Buffer;
+    public readNetworkBuffer(asNative: false, reservedSize?: number, noAssert?: boolean): this;
+    public readNetworkBuffer(asNative?: boolean, reservedSize?: number, noAssert?: boolean): this;
+    public readNetworkBuffer(asNative?: boolean, reservedSize?: number, noAssert?: boolean): this | Buffer {
         let length = this.readCUInt(noAssert);
 
-        return <this>this.readBuffer(length, asNative, {
+        return this.readBuffer(length, asNative, {
             maxBufferLength: length + (reservedSize || 10)
         });
     }
