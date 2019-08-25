@@ -13,12 +13,6 @@
     "sourceMap": false,
     "inlineSources": false,
     "allowJs": false,
-    "typeRoots": ["node_modules/@types", "types"],
-    "plugins": [
-      {
-        "transform": "typescript-is/lib/transform-inline/transformer",
-        "ignoreMethods": true
-      }
-    ]
+    "typeRoots": ["node_modules/@types", "types"]
   }
 }

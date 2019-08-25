@@ -1,12 +1,12 @@
 {
   "name": "tcp-network-toolkit",
-  "version": "9.1.0",
+  "version": "9.1.1",
   "description": "TCP Network Toolkit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node ./node_modules/ttypescript/bin/tsc"
+    "build": "node ./node_modules/typescript/bin/tsc"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,10 @@
   },
   "homepage": "https://github.com/mvcbox/node-tcp-network-toolkit#readme",
   "dependencies": {
-    "extended-buffer": "^6.0.2",
-    "typescript-is": "^0.12.2"
+    "extended-buffer": "^6.0.2"
   },
   "devDependencies": {
     "@types/node": "^12.7.2",
-    "ttypescript": "^1.5.7",
     "typescript": "^3.5.3"
   }
 }
