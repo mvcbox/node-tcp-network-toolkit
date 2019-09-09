@@ -13,6 +13,6 @@
     "sourceMap": false,
     "inlineSources": false,
     "allowJs": false,
-    "typeRoots": ["node_modules/@types", "types"]
+    "typeRoots": ["types", "node_modules/@types"]
   }
 }

@@ -90,9 +90,9 @@ export class NetworkBuffer extends ExtendedBuffer {
         return this.writeCUInt(Buffer.byteLength(value, encoding), false, noAssert).writeString(value, encoding, false);
     }
 
-    public readNetworkBuffer(asNative: true, reservedSize?: number, noAssert?: boolean): Buffer;
+    public readNetworkBuffer(): this;
     public readNetworkBuffer(asNative: false, reservedSize?: number, noAssert?: boolean): this;
-    public readNetworkBuffer(asNative?: boolean, reservedSize?: number, noAssert?: boolean): this;
+    public readNetworkBuffer(asNative: true, reservedSize?: number, noAssert?: boolean): Buffer;
     public readNetworkBuffer(asNative?: boolean, reservedSize?: number, noAssert?: boolean): this | Buffer {
         let length = this.readCUInt(noAssert);
 
@@ -101,7 +101,7 @@ export class NetworkBuffer extends ExtendedBuffer {
         });
     }
 
-    public writeNetworkBuffer(value: Buffer | NetworkBuffer, unshift?: boolean, noAssert?: boolean): this {
+    public writeNetworkBuffer(value: ExtendedBuffer | Buffer, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
             return this.writeBuffer(value, true).writeCUInt(value.length, true, noAssert);
         }
