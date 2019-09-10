@@ -1,8 +1,7 @@
 import { ExtendedBuffer } from 'extended-buffer';
-import { NetworkBufferOptions } from './NetworkBufferOptions';
 
 export class NetworkBuffer extends ExtendedBuffer {
-    public _writeCUIntToBuffer(buffer: this, value: number, noAssert?: boolean): this {
+    public _writeCUIntToBuffer(buffer: NetworkBuffer, value: number, noAssert?: boolean): this {
         let tmp;
 
         if (value < 0x80) {
@@ -31,7 +30,7 @@ export class NetworkBuffer extends ExtendedBuffer {
             return false;
         }
 
-        let value = this.readUIntBE(1);
+        const value = this.readUIntBE(1);
         --this._pointer;
 
         switch (value & 0xE0) {
@@ -48,7 +47,7 @@ export class NetworkBuffer extends ExtendedBuffer {
     }
 
     public readCUInt(noAssert?: boolean): number {
-        let value = this.readUIntBE(1, noAssert);
+        const value = this.readUIntBE(1, noAssert);
 
         switch (value & 0xE0) {
             case 0xE0:
@@ -67,8 +66,7 @@ export class NetworkBuffer extends ExtendedBuffer {
 
     public writeCUInt(value: number, unshift?: boolean, noAssert?: boolean): this {
         if (unshift) {
-            const ThisClass = <new(options?: NetworkBufferOptions) => this>this.constructor;
-            let buffer = new ThisClass({
+            const buffer = new NetworkBuffer({
                 maxBufferLength: 5
             });
 
@@ -94,7 +92,7 @@ export class NetworkBuffer extends ExtendedBuffer {
     public readNetworkBuffer(asNative: false, reservedSize?: number, noAssert?: boolean): this;
     public readNetworkBuffer(asNative: true, reservedSize?: number, noAssert?: boolean): Buffer;
     public readNetworkBuffer(asNative?: boolean, reservedSize?: number, noAssert?: boolean): this | Buffer {
-        let length = this.readCUInt(noAssert);
+        const length = this.readCUInt(noAssert);
 
         return this.readBuffer(length, asNative, {
             maxBufferLength: length + (reservedSize || 10)
