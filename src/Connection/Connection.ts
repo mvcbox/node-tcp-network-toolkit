@@ -5,15 +5,21 @@ import { Protocol } from '../Protocol';
 export class Connection {
     public socket: Socket;
     public output: Writable;
-    public session: Map<any, any> = new Map<any, any>();
+    public session: Map<any, any>;
 
     public constructor(socket: Socket, output: Writable) {
         this.socket = socket;
         this.output = output;
+        this.session = new Map<any, any>();
     }
 
     public writePacket(packet: Protocol | Buffer): Promise<boolean> {
-        if (this.socket.destroyed || !this.output.writable) {
+        if (
+            (<any>this.socket)._writableState.ended ||
+            (<any>this.socket)._writableState.ending ||
+            (<any>this.output)._writableState.ended ||
+            (<any>this.output)._writableState.ending
+        ) {
             return Promise.resolve(false);
         }
 
@@ -25,23 +31,31 @@ export class Connection {
             return Promise.resolve(true);
         }
 
-        return new Promise((resolve, reject) => {
-            const resetListeners = () => {
-                this.socket.removeListener('error', reject).removeListener('close', onClose);
-                this.output.removeListener('error', reject).removeListener('close', onClose);
-            };
+        const _this = this;
 
-            const onClose = () => {
+        return new Promise(function(resolve, reject) {
+            _this.socket.on('error', onError).on('close', onClose);
+            _this.output.on('error', onError).on('close', onClose).on('drain', onDrain);
+
+            function onClose() {
                 resetListeners();
                 reject(new Error('Close connection'));
-            };
+            }
 
-            this.output.once('drain', () => {
+            function onError(err: any) {
+                resetListeners();
+                reject(err);
+            }
+
+            function onDrain() {
                 resetListeners();
                 resolve(true);
-            });
-            this.socket.on('error', reject).on('close', onClose);
-            this.output.on('error', reject).on('close', onClose);
+            }
+
+            function resetListeners() {
+                _this.socket.removeListener('error', onError).removeListener('close', onClose);
+                _this.output.removeListener('error', onError).removeListener('close', onClose).removeListener('drain', onDrain);
+            }
         });
     }
 }

@@ -1,6 +1,6 @@
 import { Socket } from 'net';
 import { Duplex } from 'stream';
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { Protocol } from '../Protocol';
 import { Hydrator } from '../Hydrator';
 import { RawPacket } from '../PacketReader';
