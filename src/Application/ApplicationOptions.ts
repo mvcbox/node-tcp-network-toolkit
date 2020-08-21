@@ -4,6 +4,6 @@ import { PacketReaderFactory } from '../PacketReader';
 
 export interface ApplicationOptions {
     hydrator: Hydrator;
-    connectionFactory: ConnectionFactory;
-    packetReaderFactory: PacketReaderFactory;
+    connectionFactory?: ConnectionFactory;
+    packetReaderFactory?: PacketReaderFactory;
 }

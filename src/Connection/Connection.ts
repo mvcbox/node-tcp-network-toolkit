@@ -1,26 +1,26 @@
 import { Socket } from 'net';
-import { Writable } from 'stream';
+import { Writable, Duplex } from 'stream';
 import { Protocol } from '../Protocol';
 
 export class Connection {
-    public socket: Socket;
+    public socket: Duplex;
     public output: Writable;
     public session: Map<any, any>;
 
-    public constructor(socket: Socket, output: Writable) {
+    public constructor(socket: Duplex, output: Writable) {
         this.socket = socket;
         this.output = output;
         this.session = new Map<any, any>();
     }
 
-    public writePacket(packet: Protocol | Buffer): Promise<boolean> {
+    public writePacket(packet: Protocol | Buffer): Promise<void> {
         if (
             (<any>this.socket)._writableState.ended ||
             (<any>this.socket)._writableState.ending ||
             (<any>this.output)._writableState.ended ||
             (<any>this.output)._writableState.ending
         ) {
-            return Promise.resolve(false);
+            return Promise.reject(new Error('Writing to a closed connection'));
         }
 
         if (packet instanceof Protocol) {
@@ -28,7 +28,7 @@ export class Connection {
         }
 
         if (this.output.write(packet)) {
-            return Promise.resolve(true);
+            return Promise.resolve();
         }
 
         const _this = this;
@@ -49,7 +49,7 @@ export class Connection {
 
             function onDrain() {
                 resetListeners();
-                resolve(true);
+                resolve();
             }
 
             function resetListeners() {

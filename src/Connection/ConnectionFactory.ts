@@ -1,7 +1,6 @@
-import { Socket } from 'net';
-import { Duplex } from 'stream';
+import { Duplex, Writable } from 'stream';
 import { Connection } from './Connection';
 
 export interface ConnectionFactory {
-    (socket: Socket, output: Duplex): Connection;
+    (socket: Duplex, output: Writable): Connection;
 }

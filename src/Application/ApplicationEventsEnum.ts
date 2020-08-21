@@ -1,4 +1,4 @@
-export enum ApplicationEvents {
+export enum ApplicationEventsEnum {
     ACCEPT_CONNECTION       = 'ACCEPT_CONNECTION',
     CLOSE_CONNECTION        = 'CLOSE_CONNECTION',
     ERROR_CONNECTION        = 'ERROR_CONNECTION',

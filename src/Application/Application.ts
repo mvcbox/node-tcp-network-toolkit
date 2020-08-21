@@ -1,14 +1,14 @@
 import { Socket } from 'net';
-import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
 import { Protocol } from '../Protocol';
 import { Hydrator } from '../Hydrator';
 import { RawPacket } from '../PacketReader';
+import { Duplex, Readable, Writable } from 'stream';
 import { ProtocolHandler } from './ProtocolHandler';
 import { RawPacketHandler } from './RawPacketHandler';
-import { ApplicationEvents } from './ApplicationEvents';
 import { ApplicationOptions } from './ApplicationOptions';
 import { Connection, ConnectionFactory } from '../Connection';
+import { ApplicationEventsEnum } from './ApplicationEventsEnum';
 import { PacketReader, PacketReaderFactory } from '../PacketReader';
 
 export class Application extends EventEmitter {
@@ -21,41 +21,66 @@ export class Application extends EventEmitter {
     public constructor(options: ApplicationOptions) {
         super();
         this.hydrator = options.hydrator;
-        this.connectionFactory = options.connectionFactory;
-        this.packetReaderFactory = options.packetReaderFactory;
+
+        if (options.connectionFactory) {
+            this.connectionFactory = options.connectionFactory;
+        } else {
+            this.connectionFactory = function (socket, output) { return new Connection(socket, output); };
+        }
+
+        if (options.packetReaderFactory) {
+            this.packetReaderFactory = options.packetReaderFactory;
+        } else {
+            this.packetReaderFactory = function () { return new PacketReader; };
+        }
     }
 
-    public acceptConnection(socket: Socket, input: Duplex, output: Duplex): void {
+    public acceptConnection(socket: Duplex, input: Readable, output: Writable): void {
+        const _this = this;
         let activeFlag = true;
-        let packetReader: PacketReader = this.packetReaderFactory();
-        let connection: Connection = this.connectionFactory(socket, output);
+        const packetReader: PacketReader = this.packetReaderFactory();
+        const connection: Connection = this.connectionFactory(socket, output);
+        socket.on('error', onError).on('end', onEnd).on('close', onClose);
+        output.on('error', onError).on('end', onEnd).on('close', onClose);
+        input.on('error', onError).on('end', onEnd).on('close', onClose).on('data', onData);
 
-        const destroyConnection = () => {
+        function onData(data: Buffer) {
+            _this.handlePackets(packetReader.updateAndRead(data), connection);
+        }
+
+        function onError(err: any) {
+            removeListeners();
+            _this.emit(ApplicationEventsEnum.ERROR_CONNECTION, err, connection);
+            destroyConnection();
+        }
+
+        function onEnd() {
+            removeListeners();
+            destroyConnection();
+        }
+
+        function onClose() {
+            removeListeners();
+            destroyConnection();
+        }
+
+        function destroyConnection() {
             if (activeFlag) {
                 activeFlag = false;
                 socket.end();
-                socket.unref();
-                input.end();
                 output.end();
-                this.emit(ApplicationEvents.CLOSE_CONNECTION, connection);
-                socket = input = output = packetReader = connection = undefined as any;
+                input.destroy && input.destroy();
+                _this.emit(ApplicationEventsEnum.CLOSE_CONNECTION, connection);
             }
-        };
+        }
 
-        const onError = (err: any) => {
-            this.emit(ApplicationEvents.ERROR_CONNECTION, err, connection);
-            destroyConnection();
-        };
+        function removeListeners() {
+            socket.removeListener('error', onError).removeListener('end', onEnd).removeListener('close', onClose);
+            output.removeListener('error', onError).removeListener('end', onEnd).removeListener('close', onClose);
+            input.removeListener('error', onError).removeListener('end', onEnd).removeListener('close', onClose).removeListener('data', onData);
+        }
 
-        socket.once('error', onError).once('end', destroyConnection).once('close', destroyConnection);
-        input.once('error', onError).once('end', destroyConnection).once('close', destroyConnection);
-        output.once('error', onError).once('end', destroyConnection).once('close', destroyConnection);
-
-        input.on('data', (data: Buffer) => {
-            this.handlePackets(packetReader.updateAndRead(data), connection);
-        });
-
-        this.emit(ApplicationEvents.ACCEPT_CONNECTION, connection);
+        this.emit(ApplicationEventsEnum.ACCEPT_CONNECTION, connection);
     }
 
     public handlePackets(packets: RawPacket[], connection: Connection): void {
@@ -67,11 +92,11 @@ export class Application extends EventEmitter {
 
                         if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
                             result.catch((err: any) => {
-                                this.emit(ApplicationEvents.ERROR_PACKET_HANDLER, err, connection);
+                                this.emit(ApplicationEventsEnum.ERROR_PACKET_HANDLER, err, connection);
                             });
                         }
                     } catch (err) {
-                        this.emit(ApplicationEvents.ERROR_PACKET_HANDLER, err, connection);
+                        this.emit(ApplicationEventsEnum.ERROR_PACKET_HANDLER, err, connection);
                     }
                 }
             } else {
@@ -80,11 +105,11 @@ export class Application extends EventEmitter {
 
                     if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
                         result.catch((err: any) => {
-                            this.emit(ApplicationEvents.ERROR_PACKET_HANDLER, err, connection);
+                            this.emit(ApplicationEventsEnum.ERROR_PACKET_HANDLER, err, connection);
                         });
                     }
                 } catch (err) {
-                    this.emit(ApplicationEvents.ERROR_PACKET_HANDLER, err, connection);
+                    this.emit(ApplicationEventsEnum.ERROR_PACKET_HANDLER, err, connection);
                 }
             }
         }
