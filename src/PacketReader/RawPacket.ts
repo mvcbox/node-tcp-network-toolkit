@@ -1,7 +1,7 @@
 import { NetworkBuffer } from '../NetworkBuffer';
 
 export interface RawPacket {
-    opcode: number;
-    length: number;
-    payload: NetworkBuffer;
+  opcode: number;
+  length: number;
+  payload: NetworkBuffer;
 }
