@@ -1,6 +1,6 @@
 {
   "name": "tcp-network-toolkit",
-  "version": "10.2.0",
+  "version": "10.2.1",
   "description": "TCP Network Toolkit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/mvcbox/node-tcp-network-toolkit#readme",
   "dependencies": {
-    "extended-buffer": "^6.0.4"
+    "extended-buffer": "^6.1.0"
   },
   "devDependencies": {
     "@types/node": "^14.6.0",
