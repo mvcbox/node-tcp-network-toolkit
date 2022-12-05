@@ -92,6 +92,18 @@ export class NetworkBuffer extends ExtendedBuffer {
     return result;
   }
 
+  public isReadableNetworkBuffer(): boolean {
+    if (!this.isReadableCUInt()) {
+      return false;
+    }
+
+    const pointer = this.getPointer();
+    const bufferSize = this.readCUInt();
+    const result = this.isReadable(bufferSize);
+    this.setPointer(pointer);
+    return result;
+  }
+
   public writeNetworkString(value: string, encoding?: BufferEncoding, unshift?: boolean, noAssert?: boolean): this {
     if (unshift) {
       return this.writeString(value, encoding, true).writeCUInt(Buffer.byteLength(value, encoding), true, noAssert);
